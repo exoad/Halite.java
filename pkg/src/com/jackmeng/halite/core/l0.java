@@ -1,4 +1,4 @@
-package com.jackmeng.halite;
+package com.jackmeng.halite.core;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,7 @@ import java.io.IOException;
  *
  * @author Jack Meng
  */
-final class l0
+public final class l0
 {
   private l0()
   {

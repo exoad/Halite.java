@@ -2,6 +2,16 @@ package com.jackmeng.halite;
 
 import java.util.Iterator;
 
+import com.jackmeng.halite.core.l0;
+
+/**
+ * The main class to creating a Halite Configuration Manager. This Loader keeps
+ * track
+ * of both reading (IN) properties, validating these properties, and saving
+ * these properties
+ *
+ * @author Jack Meng
+ */
 public final class HaliteLoader
     implements
     Iterable< use_Def >

@@ -1,4 +1,4 @@
-package com.jackmeng.halite;
+package com.jackmeng.halite.core;
 
 /**
  * This class details some of the common terms used for determining
