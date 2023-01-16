@@ -1,6 +1,7 @@
 package com.jackmeng.halite;
 
-import java.util.Iterator;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.jackmeng.halite.core.l0;
 
@@ -13,8 +14,6 @@ import com.jackmeng.halite.core.l0;
  * @author Jack Meng
  */
 public final class HaliteLoader
-    implements
-    Iterable< use_Def >
 {
 
   public enum halite_FaultingStyle {
@@ -34,12 +33,13 @@ public final class HaliteLoader
     IGNORE_ON_FAULT;
   }
 
-  private final Iterable< use_Def > defs;
+  private final Map< use_Def< ? >, ? > defs;
   private final halite_FaultingStyle style;
 
-  public HaliteLoader(halite_FaultingStyle style, Iterable< use_Def > property_def)
+  public HaliteLoader(halite_FaultingStyle style, Iterable< use_Def< ? > > property_def)
   {
-    this.defs = property_def;
+    defs = new HashMap<>();
+    property_def.forEach(r -> defs.put(r, null));
     this.style = style;
   }
 
@@ -54,8 +54,4 @@ public final class HaliteLoader
 
   }
 
-  @Override public Iterator< use_Def > iterator()
-  {
-    return defs.iterator();
-  }
 }

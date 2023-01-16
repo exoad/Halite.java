@@ -3,12 +3,14 @@ package com.jackmeng.halite;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import com.jackmeng.stl.stl_Callback;
+
 /**
  * This is the base definition for a single "property" in a property file.
  *
  * @author Jack Meng
  */
-public class use_Def
+public class use_Def< T >
     implements
     Consumer< String >
 {
@@ -37,38 +39,16 @@ public class use_Def
     INVALID
   }
 
-  /**
-   * Defines how this definition should behave when it is being interacted with by
-   * the HaliteLoader
-   *
-   * @author Jack Meng
-   */
-  public enum def_Strict {
-    /**
-     * If any of the guards return false for invalidation, this definition will not
-     * consume
-     * a "DEFAULT_VALUE" and instead will panic.
-     */
-    CRIT_EFFORT,
-
-    /**
-     * If any of the guards return false for invalidation, simply return
-     * property_default_value
-     */
-    LAZY_EFFORT;
-  }
-
   public final String key, property_name, property_default_value;
   public Optional< String > opt_Descriptor;
   private def_State myState = def_State.NOT_LOADED;
+  private T value;
   private Optional< Runnable > actionpotential;
   private final impl_PGuard[] coalesce;
-  private final def_Strict effort;
+  private final Optional< stl_Callback< T, String > > modifier;
 
   /**
-   * @param effort
-   *          The effort used to critique the parameter values.
-   *          {@link com.jackmeng.halite.use_Def.def_Strict}
+
    * @param key
    *          The Key Name, this is not the formal name of the key.
    * @param property_name
@@ -81,16 +61,16 @@ public class use_Def
    * @param e
    *          The guard coalescing group to use
    */
-  public use_Def(def_Strict effort, String key, String property_name, String property_default_value, impl_PGuard... e)
+  public use_Def(String key, String property_name, String property_default_value, impl_PGuard... e)
   {
-    this(effort, null, null, key, property_name, property_default_value, e);
+    this(null, null, null, key, property_name, property_default_value, e);
   }
 
   /**
-   *
-   * @param effort
-   *          The effort used to critique the parameter values.
-   *          {@link com.jackmeng.halite.use_Def.def_Strict}
+   * @param potential_modifier
+   *          This modifier can be used for when the desired value might need
+   *          altering after all
+   *          checks have passed.
    * @param action
    *          The action to run when this definition is being loaded. This action
    *          is run as a none blocking action initiated by default by
@@ -110,16 +90,17 @@ public class use_Def
    * @param e
    *          The guard coalescing group to use
    */
-  public use_Def(def_Strict effort, Runnable action, String descriptor, String key, String property_name,
+  public use_Def(stl_Callback< T, String > potential_modifier, Runnable action, String descriptor,
+      String key, String property_name,
       String property_default_value,
       impl_PGuard... e)
   {
     this.key = key;
+    this.modifier = potential_modifier == null ? Optional.empty() : Optional.of(potential_modifier);
     this.actionpotential = action == null ? Optional.empty() : Optional.of(action);
     this.property_default_value = property_default_value;
     this.property_name = property_name;
     this.coalesce = e;
-    this.effort = effort;
     this.opt_Descriptor = descriptor == null ? Optional.empty() : Optional.of(descriptor);
   }
 
@@ -131,6 +112,11 @@ public class use_Def
     return myState;
   }
 
+  public T resultant()
+  {
+    return value;
+  }
+
   /**
    * @return The desired action to run before this property_definition is loaded
    *         by the HaliteLoader
@@ -140,8 +126,12 @@ public class use_Def
     return actionpotential;
   }
 
-  @Override public void accept(String t)
+  @SuppressWarnings("unchecked") @Override public void accept(String t)
   {
-
+    boolean r = true;
+    for (impl_PGuard e : coalesce)
+      r = e.check(t);
+    myState = r ? def_State.VALID : def_State.INVALID;
+    modifier.ifPresentOrElse(x -> value = x.call(t), () -> value = (T) t);
   }
 }
