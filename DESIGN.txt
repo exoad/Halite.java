@@ -1,2 +1,0 @@
-1. be able to safely access files
-    a. This means if the desired file was not found, it would be replaced with default properties
