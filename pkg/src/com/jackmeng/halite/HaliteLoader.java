@@ -1,5 +1,6 @@
 package com.jackmeng.halite;
 
+import java.nio.file.FileSystemException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,8 +46,12 @@ public final class HaliteLoader
 
   public synchronized void load(String fileName)
   {
-    l0.File_create_file0(fileName);
+    if (l0.File_create_file0(fileName))
+    {
 
+    }
+    else
+      new FileSystemException(fileName).printStackTrace();
   }
 
   public synchronized void save(String fileName)
