@@ -4,7 +4,7 @@ import java.nio.file.FileSystemException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.jackmeng.halite.core.l0;
+import com.jackmeng.halite.core.$l0;
 
 /**
  * The main class to creating a Halite Configuration Manager. This Loader keeps
@@ -44,14 +44,18 @@ public final class HaliteLoader
     this.style = style;
   }
 
+  /**
+   * This function loads a file into memory for reading, but does not perform any
+   * parsing yet.
+   *
+   * @param fileName
+   *          The file to load information from
+   */
   public synchronized void load(String fileName)
   {
-    if (l0.File_create_file0(fileName))
-    {
+    $l0.File_read_file0(fileName).ifPresentOrElse(e -> {
 
-    }
-    else
-      new FileSystemException(fileName).printStackTrace();
+    }, () -> use_HaliteFault.launch_fault("Failed to the desired input file. Reason: " + use_HaliteFault.$fault0_2()));
   }
 
   public synchronized void save(String fileName)
