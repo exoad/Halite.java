@@ -39,7 +39,8 @@ public class use_Def< T >
     INVALID
   }
 
-  public final String key, property_name, property_default_value;
+  public final String key, property_name;
+  public final T property_default_value;
   public Optional< String > opt_Descriptor;
   private def_State myState = def_State.NOT_LOADED;
   private T value;
@@ -48,7 +49,7 @@ public class use_Def< T >
   private final Optional< stl_Callback< T, String > > modifier;
 
   /**
-
+   *
    * @param key
    *          The Key Name, this is not the formal name of the key.
    * @param property_name
@@ -61,7 +62,7 @@ public class use_Def< T >
    * @param e
    *          The guard coalescing group to use
    */
-  public use_Def(String key, String property_name, String property_default_value, impl_PGuard... e)
+  public use_Def(String key, String property_name, T property_default_value, impl_PGuard... e)
   {
     this(null, null, null, key, property_name, property_default_value, e);
   }
@@ -92,7 +93,7 @@ public class use_Def< T >
    */
   public use_Def(stl_Callback< T, String > potential_modifier, Runnable action, String descriptor,
       String key, String property_name,
-      String property_default_value,
+      T property_default_value,
       impl_PGuard... e)
   {
     this.key = key;

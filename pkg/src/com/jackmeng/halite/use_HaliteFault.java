@@ -11,12 +11,17 @@ public class use_HaliteFault
 
   public static String $fault0_1()
   {
-    return "FilePromise_Denied";
+    return "FilePromise_Denied_RealType";
   }
 
   public static String $fault0_2()
   {
-    return "FileRead_Corrupt";
+    return "FileRead_Corrupt_RealType";
+  }
+
+  public static String $fault0_3()
+  {
+    return "PropertyName_Unmatched_CritType";
   }
 
   /**
