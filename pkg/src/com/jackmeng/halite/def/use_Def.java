@@ -1,8 +1,9 @@
-package com.jackmeng.halite;
+package com.jackmeng.halite.def;
 
 import java.util.Optional;
-import java.util.function.Consumer;
 
+import com.jackmeng.halite.impl_Modifier;
+import com.jackmeng.halite.impl_PGuard;
 import com.jackmeng.stl.stl_Callback;
 
 /**
@@ -12,7 +13,7 @@ import com.jackmeng.stl.stl_Callback;
  */
 public class use_Def< T >
     implements
-    Consumer< String >
+    stl_Callback< Boolean, String >
 {
 
   /**
@@ -43,10 +44,9 @@ public class use_Def< T >
   public final T property_default_value;
   public Optional< String > opt_Descriptor;
   private def_State myState = def_State.NOT_LOADED;
-  private T value;
   private Optional< Runnable > actionpotential;
   private final impl_PGuard[] coalesce;
-  private final Optional< stl_Callback< T, String > > modifier;
+  private final Optional< impl_Modifier< String > > modifier;
 
   /**
    *
@@ -91,7 +91,7 @@ public class use_Def< T >
    * @param e
    *          The guard coalescing group to use
    */
-  public use_Def(stl_Callback< T, String > potential_modifier, Runnable action, String descriptor,
+  public use_Def(impl_Modifier< String > potential_modifier, Runnable action, String descriptor,
       String key, String property_name,
       T property_default_value,
       impl_PGuard... e)
@@ -113,11 +113,6 @@ public class use_Def< T >
     return myState;
   }
 
-  public T resultant()
-  {
-    return value;
-  }
-
   /**
    * @return The desired action to run before this property_definition is loaded
    *         by the HaliteLoader
@@ -127,12 +122,17 @@ public class use_Def< T >
     return actionpotential;
   }
 
-  @SuppressWarnings("unchecked") @Override public void accept(String t)
+  public Optional< impl_Modifier< String > > modifier()
+  {
+    return modifier;
+  }
+
+  @Override public Boolean call(String arg0)
   {
     boolean r = true;
     for (impl_PGuard e : coalesce)
-      r = e.check(t);
+      r = e.check(arg0);
     myState = r ? def_State.VALID : def_State.INVALID;
-    modifier.ifPresentOrElse(x -> value = x.call(t), () -> value = (T) t);
+    return r;
   }
 }
