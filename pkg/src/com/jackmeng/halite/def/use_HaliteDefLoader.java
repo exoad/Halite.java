@@ -108,6 +108,7 @@ public final class use_HaliteDefLoader
     defs = new HashMap<>();
     property_def.forEach(r -> defs.put(r, null));
     this.style = style == null ? halite_FaultingStyle.PANIC_ON_FAULT : style;
+    l0.LOG.push("HaliteDefLoader[" + hashCode() + "] ARMED");
   }
 
   public use_HaliteDefLoader(halite_FaultingStyle style, use_Def< ? >[] property_Def)
@@ -137,11 +138,13 @@ public final class use_HaliteDefLoader
    */
   public synchronized void load(String fileName, halite_PropertyStyle style, boolean create, boolean end_goal_check)
   {
+    l0.LOG.push("Loading a [DEFINITION] based property configuration file");
     loaded = 0;
     incorrect_format = 0;
     if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
     {
       $File_create_file0(fileName, create).ifPresentOrElse(e -> {
+        l0.LOG.push("[DEFINITION] based property file exists. Proceeding with loading and processing");
         Properties p = new Properties();
         boolean loaded = true;
         try
@@ -150,27 +153,34 @@ public final class use_HaliteDefLoader
         } catch (IOException e1)
         {
           e1.printStackTrace();
+          l0.LOG.push(e1.getMessage());
           loaded = false;
         }
         if (loaded)
         {
+          l0.LOG.push("Property init of java::io::Properties.load() was successful");
           for (use_Def< ? > r : defs.keySet())
           {
             r.dawn_action().ifPresent(Runnable::run);
             String property = p.getProperty(r.property_name);
             if (property != null && r.call(property))
             {
+              l0.LOG.push("DefinitionLoader: Loaded_Property: " + r.key + " as " + r.property_name + " with " + property);
               r.modifier().ifPresentOrElse(x -> defs.put(r, x.modify(property)), () -> defs.put(r, property));
               this.loaded++;
             }
             else
             {
               if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
+
                 use_HaliteFault.launch_fault("Failed to validate the property. Panic Reason: " + l0.err.getString("2")
                     + "\nInstead I got: " + property + "\nDoes not match guard(s): "
                     + l0.to_string_arr_class(r.coalesce) + "\nFor property: " + r.property_name + "\nKey: " + r.key);
               else
+              {
                 defs.put(r, r.property_default_value);
+                l0.LOG.push("[0]Loaded property: " + r.key + " as " + r.property_name + " with default: " + r.property_default_value);
+              }
               incorrect_format++;
             }
           }
@@ -182,7 +192,10 @@ public final class use_HaliteDefLoader
           else
           {
             for (use_Def< ? > r : defs.keySet())
+            {
               defs.put(r, r.property_default_value);
+              l0.LOG.push("[1]Loaded property: " + r.key + " as " + r.property_name + " with default: " + r.property_default_value);
+            }
           }
         }
         load = loaded;
@@ -195,7 +208,9 @@ public final class use_HaliteDefLoader
             loaded++;
           }
         else if (this.style == halite_FaultingStyle.PANIC_ON_FAULT && !create)
+        {
           use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
+        }
         else if (create)
         {
           File t = new File(fileName);
@@ -205,10 +220,12 @@ public final class use_HaliteDefLoader
           } catch (IOException e1)
           {
             e1.printStackTrace();
+            l0.LOG.push(e1.getMessage());
           }
           for (use_Def< ? > r : defs.keySet())
           {
             defs.put(r, r.property_default_value);
+            l0.LOG.push("[2]Loaded property: " + r.key + " as " + r.property_name + " with default: " + r.property_default_value);
             loaded++;
           }
         }
@@ -227,9 +244,13 @@ public final class use_HaliteDefLoader
 
   }
 
-  public synchronized void save(String fileName, halite_FaultingStyle style)
+  public synchronized void save(String fileName, halite_FaultingStyle style, boolean end_goal_check)
   {
+    int saved = 0;
 
+    if(end_goal_check)
+    {
+    }
   }
 
   /**
@@ -239,6 +260,7 @@ public final class use_HaliteDefLoader
    */
   @Override public void load(String fileName)
   {
+    l0.LOG.push("Default loading with #load(String)");
     load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES, false, true);
   }
 
