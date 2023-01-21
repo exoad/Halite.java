@@ -9,21 +9,6 @@ public class use_HaliteFault
     extends Exception
 {
 
-  public static String $fault0_1()
-  {
-    return "FilePromise_Denied_RealType";
-  }
-
-  public static String $fault0_2()
-  {
-    return "FileRead_Corrupt_RealType";
-  }
-
-  public static String $fault0_3()
-  {
-    return "PropertyName_Unmatched_CritType";
-  }
-
   /**
    * @param cause
    *          Super
@@ -41,6 +26,7 @@ public class use_HaliteFault
    */
   public static void launch_fault(final String cause)
   {
-    new use_HaliteFault(cause).printStackTrace();
+    new use_HaliteFault("\n===================================\n" + cause + "\n===================================")
+        .printStackTrace();
   }
 }

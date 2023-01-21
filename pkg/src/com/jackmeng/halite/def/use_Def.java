@@ -45,7 +45,7 @@ public class use_Def< T >
   public Optional< String > opt_Descriptor;
   private def_State myState = def_State.NOT_LOADED;
   private Optional< Runnable > actionpotential;
-  private final impl_PGuard[] coalesce;
+  public final impl_PGuard[] coalesce;
   private final Optional< impl_Modifier< String > > modifier;
 
   /**

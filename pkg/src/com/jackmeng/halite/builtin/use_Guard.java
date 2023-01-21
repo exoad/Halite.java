@@ -25,4 +25,23 @@ public final class use_Guard
    * say that the inputted property value is INVALID.
    */
   public static final impl_PGuard ALWAYS_FALSE = e -> false;
+
+  /**
+   * Checks if a boolean expression is matched using the inbuilt Boolean.parse;
+   */
+  public static final impl_PGuard BOOLEAN = Boolean::parseBoolean;
+
+  /**
+   * Checks if a numerical expression is matched using the inbuilt Integer.parse;
+   */
+  public static final impl_PGuard INTEGER = e -> {
+    try
+    {
+      Integer.parseInt(e);
+    } catch (Exception ex)
+    {
+      return false;
+    }
+    return true;
+  };
 }

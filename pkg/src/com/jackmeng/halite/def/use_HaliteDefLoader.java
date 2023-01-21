@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.jackmeng.halite.HaliteLoader;
 import com.jackmeng.halite.use_HaliteFault;
+import com.jackmeng.halite.core.l0;
 
 /**
  * A definition based loader uses String based definitions to create keyed
@@ -115,7 +116,7 @@ public final class use_HaliteDefLoader
         s.set(false);
       }
     }, () -> new use_HaliteFault(
-        "Could not parse said file. Reason: File could not be found. " + use_HaliteFault.$fault0_1())
+        "Could not parse said file. Reason: " + l0.err.getString("0"))
             .printStackTrace());
     return s.get() ? Optional.of(sb.toString()) : Optional.empty();
   }
@@ -152,6 +153,8 @@ public final class use_HaliteDefLoader
 
   private final Map< use_Def< ? >, Object > defs;
   private final halite_FaultingStyle style;
+  private int loaded = 0, incorrect_format = 0;
+  private boolean load = false;
 
   public use_HaliteDefLoader(halite_FaultingStyle style, Iterable< use_Def< ? > > property_def)
   {
@@ -160,15 +163,30 @@ public final class use_HaliteDefLoader
     this.style = style == null ? halite_FaultingStyle.PANIC_ON_FAULT : style;
   }
 
+  public use_HaliteDefLoader(halite_FaultingStyle style, use_Def< ? >[] property_Def)
+  {
+    this(style, l0.itrb(property_Def));
+  }
+
   /**
    * This function loads a file into memory for reading, but does not perform any
    * parsing yet.
    *
    * @param fileName
    *          The file to load information from
+   * @param style
+   *          How the program should panic if there is to be an error(s)
+   * @param end_goal_check
+   *          IF true, then the program would perform finalization diagnostics. If
+   *          style is also to PANIC_ON_FAULT, then the program would also check
+   *          if any values are null and panic if there are, else it would just
+   *          store some general data about how much got loaded etc.. It is best
+   *          to turn this parameter to TRUE
    */
-  public synchronized void load(String fileName, halite_PropertyStyle style)
+  public synchronized void load(String fileName, halite_PropertyStyle style, boolean end_goal_check)
   {
+    loaded = 0;
+    incorrect_format = 0;
     if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
     {
       $File_create_file0(fileName).ifPresentOrElse(e -> {
@@ -184,20 +202,32 @@ public final class use_HaliteDefLoader
         }
         if (loaded)
         {
+          load = loaded;
           for (use_Def< ? > r : defs.keySet())
           {
             r.dawn_action().ifPresent(Runnable::run);
-            if (p.getProperty(r.property_name) != null && r.call(p.getProperty(r.property_name)))
+            String property = p.getProperty(r.property_name);
+            if (property != null && r.call(property))
             {
-              
+              r.modifier().ifPresentOrElse(x -> defs.put(r, x.modify(property)), () -> defs.put(r, property));
+              this.loaded++;
             }
-            else defs.put(r, r.property_default_value);
+            else
+            {
+              if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
+                use_HaliteFault.launch_fault("Failed to validate the property. Panic Reason: " + l0.err.getString("2")
+                    + "\nInstead I got: " + property + "\nDoes not match guard(s): "
+                    + l0.to_string_arr_class(r.coalesce) + "\nFor property: " + r.property_name + "\nKey: " + r.key);
+              else
+                defs.put(r, r.property_default_value);
+              incorrect_format++;
+            }
           }
         }
         else if (!loaded)
         {
           if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
-            use_HaliteFault.launch_fault("Failed to load properties. Reason: " + use_HaliteFault.$fault0_3());
+            use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
           else
           {
             for (use_Def< ? > r : defs.keySet())
@@ -205,10 +235,21 @@ public final class use_HaliteDefLoader
           }
         }
       }, () -> use_HaliteFault
-          .launch_fault("Failed to the desired input file. Reason: " + use_HaliteFault.$fault0_1()));
+          .launch_fault("Failed to load the desired file. Reason: " + l0.err.getString("3")));
     }
     else new UnsupportedOperationException(
-        "OTHER FILE FORMATS BESIDES: java.util.properties style have not been implemented").printStackTrace();
+        "OTHER FILE FORMATS BESIDES: java.util.properties style have not been implemented. " + l0.err.getString("4"))
+            .printStackTrace();
+
+    if (end_goal_check && this.style == halite_FaultingStyle.PANIC_ON_FAULT)
+    {
+      defs.forEach((a, b) -> {
+        if (b == null)
+          use_HaliteFault.launch_fault("End goal check failed. Reason: " + l0.err.getString("5"));
+      });
+      System.out.println("[\u2713] " + loaded + "\n[\u2573] " + incorrect_format + "\n[\u2211] "
+          + (loaded + incorrect_format) + "\n=========");
+    }
 
   }
 
@@ -224,13 +265,19 @@ public final class use_HaliteDefLoader
    */
   @Override public void load(String fileName)
   {
-    load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES);
+    load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES, true);
   }
 
   @Override public void sync(String fileName)
   {
     // TODO Auto-generated method stub
 
+  }
+
+  @Override public String toString()
+  {
+    return "[\u2713] " + loaded + "\n[\u2573] " + incorrect_format + "\n[\u2211] "
+        + (loaded + incorrect_format) + "\n" + defs.toString();
   }
 
 }
