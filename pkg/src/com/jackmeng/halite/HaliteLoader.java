@@ -33,4 +33,9 @@ public interface HaliteLoader
   {
     return this.hashCode() + "@" + toString();
   }
+
+  default void attachForShutdown(String fileName)
+  {
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> this.sync(fileName)));
+  }
 }

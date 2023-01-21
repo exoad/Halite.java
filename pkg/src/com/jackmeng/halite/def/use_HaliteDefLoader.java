@@ -42,83 +42,30 @@ public final class use_HaliteDefLoader
    * For example if the file is present, don't create a file, if the file is not,
    * create a file.
    *
-   * <br>
-   * For more aggressive pedantics, try {@link #File_create_file1(String)} which
-   * will always delete if
-   * a duplicate is found.
    *
    * @param path
    *          Path to the desired file. This means including the file name and
    *          extension.
+   * @param try_create
+   *          CreateNewFile() ?
    * @return The file object, null if the file could not be created.
    */
-  private static Optional< File > $File_create_file0(final String path)
+  private static Optional< File > $File_create_file0(final String path, final boolean try_create)
   {
     File t = new File(path);
     if (t.exists() && t.isFile() && t.canRead() && t.canWrite())
       return Optional.of(t);
-    try
+    if (try_create)
     {
-      t.createNewFile();
-    } catch (IOException e)
-    {
-      return Optional.empty();
-    }
-    return Optional.of(t);
-  }
-
-  /**
-   * Standard File IO function, determines specific objectives to meet when
-   * creating a file.
-   *
-   * Check the docs of {@link #File_create_file0(String)} for more information
-   *
-   * Deletes duplicate
-   *
-   * @param path
-   *          Path to the desired file. This means including the file name and
-   *          extension.
-   * @return The file object, null if the file could not be created.
-   */
-  private static Optional< File > $File_create_file1(final String path)
-  {
-    File t = new File(path);
-    if (t.exists() && t.isFile())
-      t.delete();
-    try
-    {
-      t.createNewFile();
-    } catch (IOException e)
-    {
-      return Optional.empty();
-    }
-    return Optional.of(t);
-  }
-
-  private static Optional< String > $File_read_file0(final String path)
-  {
-    final StringBuilder sb = new StringBuilder();
-    AtomicBoolean s = new AtomicBoolean(true);
-    $File_create_file0(path).ifPresentOrElse(e -> {
       try
       {
-        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(e)));
-        if (br.ready())
-        {
-          String temp;
-          while ((temp = br.readLine()) != null)
-            sb.append(temp);
-        }
-        br.close();
-      } catch (IOException err)
+        t.createNewFile();
+      } catch (IOException e)
       {
-        err.printStackTrace();
-        s.set(false);
+        return Optional.empty();
       }
-    }, () -> new use_HaliteFault(
-        "Could not parse said file. Reason: " + l0.err.getString("0"))
-            .printStackTrace());
-    return s.get() ? Optional.of(sb.toString()) : Optional.empty();
+    }
+    return Optional.empty();
   }
 
   public enum halite_FaultingStyle {
@@ -176,6 +123,11 @@ public final class use_HaliteDefLoader
    *          The file to load information from
    * @param style
    *          How the program should panic if there is to be an error(s)
+   * @param create
+   *          If the desired property file could not be found, then create one
+   *          with the default properties. If this parameter is false, then the
+   *          default properties will not be written to storage and all values
+   *          will have a default value.
    * @param end_goal_check
    *          IF true, then the program would perform finalization diagnostics. If
    *          style is also to PANIC_ON_FAULT, then the program would also check
@@ -183,13 +135,13 @@ public final class use_HaliteDefLoader
    *          store some general data about how much got loaded etc.. It is best
    *          to turn this parameter to TRUE
    */
-  public synchronized void load(String fileName, halite_PropertyStyle style, boolean end_goal_check)
+  public synchronized void load(String fileName, halite_PropertyStyle style, boolean create, boolean end_goal_check)
   {
     loaded = 0;
     incorrect_format = 0;
     if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
     {
-      $File_create_file0(fileName).ifPresentOrElse(e -> {
+      $File_create_file0(fileName, create).ifPresentOrElse(e -> {
         Properties p = new Properties();
         boolean loaded = true;
         try
@@ -202,7 +154,6 @@ public final class use_HaliteDefLoader
         }
         if (loaded)
         {
-          load = loaded;
           for (use_Def< ? > r : defs.keySet())
           {
             r.dawn_action().ifPresent(Runnable::run);
@@ -234,21 +185,44 @@ public final class use_HaliteDefLoader
               defs.put(r, r.property_default_value);
           }
         }
-      }, () -> use_HaliteFault
-          .launch_fault("Failed to load the desired file. Reason: " + l0.err.getString("3")));
+        load = loaded;
+      }, () -> {
+        load = false;
+        if (this.style == halite_FaultingStyle.IGNORE_ON_FAULT && !create)
+          for (use_Def< ? > r : defs.keySet())
+          {
+            defs.put(r, r.property_default_value);
+            loaded++;
+          }
+        else if (this.style == halite_FaultingStyle.PANIC_ON_FAULT && !create)
+          use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
+        else if (create)
+        {
+          File t = new File(fileName);
+          try
+          {
+            t.createNewFile();
+          } catch (IOException e1)
+          {
+            e1.printStackTrace();
+          }
+          for (use_Def< ? > r : defs.keySet())
+          {
+            defs.put(r, r.property_default_value);
+            loaded++;
+          }
+        }
+      });
     }
-    else new UnsupportedOperationException(
-        "OTHER FILE FORMATS BESIDES: java.util.properties style have not been implemented. " + l0.err.getString("4"))
-            .printStackTrace();
 
-    if (end_goal_check && this.style == halite_FaultingStyle.PANIC_ON_FAULT)
+    if (end_goal_check)
     {
       defs.forEach((a, b) -> {
         if (b == null)
           use_HaliteFault.launch_fault("End goal check failed. Reason: " + l0.err.getString("5"));
       });
       System.out.println("[\u2713] " + loaded + "\n[\u2573] " + incorrect_format + "\n[\u2211] "
-          + (loaded + incorrect_format) + "\n=========");
+          + (loaded + incorrect_format) + "\nFile_Load: " + this.load + "\n=========");
     }
 
   }
@@ -265,7 +239,7 @@ public final class use_HaliteDefLoader
    */
   @Override public void load(String fileName)
   {
-    load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES, true);
+    load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES, false, true);
   }
 
   @Override public void sync(String fileName)

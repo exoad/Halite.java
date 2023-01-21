@@ -1,4 +1,4 @@
-package com.jackmeng.test;
+package com.jackmeng.test.def_tester;
 
 import com.jackmeng.halite.builtin.use_Guard;
 import com.jackmeng.halite.def.use_Def;
@@ -9,9 +9,8 @@ public class test_Halite
 {
   public static void main(String[] args)
   {
-    use_HaliteDefLoader loader = new use_HaliteDefLoader(halite_FaultingStyle.PANIC_ON_FAULT,
+    use_HaliteDefLoader loader = new use_HaliteDefLoader(halite_FaultingStyle.IGNORE_ON_FAULT,
         new use_Def[] { new use_Def< Boolean >("AMOGUS", "uwu", Boolean.TRUE, use_Guard.BOOLEAN) });
-    loader.load("/home/jackm/Code/property-manager/pkg/src/com/jackmeng/test/test.psp");
-    System.out.println(loader);
+    loader.load("/home/jackm/Code/property-manager/pkg/src/com/jackmeng/test/def_tester/tcs/1.psp");
   }
 }
