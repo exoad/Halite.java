@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import com.jackmeng.halite.HaliteLoader;
+import com.jackmeng.halite.HaliteBuilder;
 import com.jackmeng.halite.use_HaliteFault;
 import com.jackmeng.halite.core.l0;
 
@@ -24,11 +24,11 @@ import com.jackmeng.halite.core.l0;
  * and have its value returned back to the program.
  *
  * @author Jack Meng
- * @see com.jackmeng.halite.HaliteLoader
+ * @see com.jackmeng.halite.HaliteBuilder
  */
-public final class use_HaliteDefLoader
+public final class use_HaliteDefBuilder
     implements
-    HaliteLoader
+    HaliteBuilder
 {
 
   /**
@@ -105,7 +105,7 @@ public final class use_HaliteDefLoader
    * @param property_def
    *          The Property definition that is used to define and build this loader
    */
-  public use_HaliteDefLoader(halite_FaultingStyle style, Iterable< use_Def< ? > > property_def)
+  public use_HaliteDefBuilder(halite_FaultingStyle style, Iterable< use_Def< ? > > property_def)
   {
     defs = new HashMap<>();
     property_def.forEach(r -> defs.put(r, null));
@@ -119,7 +119,7 @@ public final class use_HaliteDefLoader
    * @param property_Def
    *          Array of property definitions used to define and build this loader
    */
-  public use_HaliteDefLoader(halite_FaultingStyle style, use_Def< ? >[] property_Def)
+  public use_HaliteDefBuilder(halite_FaultingStyle style, use_Def< ? >[] property_Def)
   {
     this(style, l0.itrb(property_Def));
   }
@@ -256,6 +256,7 @@ public final class use_HaliteDefLoader
 
   public synchronized void save(String fileName, halite_FaultingStyle style, boolean end_goal_check)
   {
+    l0.LOG.push("[DEFINITION_LOADER] Attempting to save the current desired property definitions to: " + fileName);
     int saved = 0;
 
     if (end_goal_check)

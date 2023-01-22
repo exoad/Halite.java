@@ -7,12 +7,12 @@ package com.jackmeng.halite;
  * loaders:
  * <ul>
  * <li>Definition Based Loader
- * {@link com.jackmeng.halite.def.use_HaliteDefLoader}</li>
+ * {@link com.jackmeng.halite.def.use_HaliteDefBuilder}</li>
  * <li>Model Based Loader
- * {@link com.jackmeng.halite.model.use_HaliteModelLoader}</li>
+ * {@link com.jackmeng.halite.model.use_HaliteModelBuilder}</li>
  * </ul>
  */
-public interface HaliteLoader
+public interface HaliteBuilder
 {
   /**
    * Loads a file

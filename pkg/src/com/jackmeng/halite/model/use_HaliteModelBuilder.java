@@ -2,11 +2,11 @@ package com.jackmeng.halite.model;
 
 import java.io.File;
 
-import com.jackmeng.halite.HaliteLoader;
+import com.jackmeng.halite.HaliteBuilder;
 
-public final class use_HaliteModelLoader
+public final class use_HaliteModelBuilder
     implements
-    HaliteLoader
+    HaliteBuilder
 {
 
   @Override public void load(String fileName)
