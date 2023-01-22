@@ -1,17 +1,13 @@
 
 package com.jackmeng.halite.def;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import com.jackmeng.halite.HaliteLoader;
 import com.jackmeng.halite.use_HaliteFault;
 import com.jackmeng.halite.core.l0;
@@ -103,6 +99,12 @@ public final class use_HaliteDefLoader
   private int loaded = 0, incorrect_format = 0;
   private boolean load = false;
 
+  /**
+   * @param style
+   *          The Default faulting style of this loader (FINAL)
+   * @param property_def
+   *          The Property definition that is used to define and build this loader
+   */
   public use_HaliteDefLoader(halite_FaultingStyle style, Iterable< use_Def< ? > > property_def)
   {
     defs = new HashMap<>();
@@ -111,6 +113,12 @@ public final class use_HaliteDefLoader
     l0.LOG.push("HaliteDefLoader[" + hashCode() + "] ARMED");
   }
 
+  /**
+   * @param style
+   *          The Default faulting style of this loader (FINAL)
+   * @param property_Def
+   *          Array of property definitions used to define and build this loader
+   */
   public use_HaliteDefLoader(halite_FaultingStyle style, use_Def< ? >[] property_Def)
   {
     this(style, l0.itrb(property_Def));
@@ -165,7 +173,8 @@ public final class use_HaliteDefLoader
             String property = p.getProperty(r.property_name);
             if (property != null && r.call(property))
             {
-              l0.LOG.push("DefinitionLoader: Loaded_Property: " + r.key + " as " + r.property_name + " with " + property);
+              l0.LOG
+                  .push("DefinitionLoader: Loaded_Property: " + r.key + " as " + r.property_name + " with " + property);
               r.modifier().ifPresentOrElse(x -> defs.put(r, x.modify(property)), () -> defs.put(r, property));
               this.loaded++;
             }
@@ -179,7 +188,8 @@ public final class use_HaliteDefLoader
               else
               {
                 defs.put(r, r.property_default_value);
-                l0.LOG.push("[0]Loaded property: " + r.key + " as " + r.property_name + " with default: " + r.property_default_value);
+                l0.LOG.push("[0]Loaded property: " + r.key + " as " + r.property_name + " with default: "
+                    + r.property_default_value);
               }
               incorrect_format++;
             }
@@ -194,7 +204,8 @@ public final class use_HaliteDefLoader
             for (use_Def< ? > r : defs.keySet())
             {
               defs.put(r, r.property_default_value);
-              l0.LOG.push("[1]Loaded property: " + r.key + " as " + r.property_name + " with default: " + r.property_default_value);
+              l0.LOG.push("[1]Loaded property: " + r.key + " as " + r.property_name + " with default: "
+                  + r.property_default_value);
             }
           }
         }
@@ -208,9 +219,7 @@ public final class use_HaliteDefLoader
             loaded++;
           }
         else if (this.style == halite_FaultingStyle.PANIC_ON_FAULT && !create)
-        {
           use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
-        }
         else if (create)
         {
           File t = new File(fileName);
@@ -225,7 +234,8 @@ public final class use_HaliteDefLoader
           for (use_Def< ? > r : defs.keySet())
           {
             defs.put(r, r.property_default_value);
-            l0.LOG.push("[2]Loaded property: " + r.key + " as " + r.property_name + " with default: " + r.property_default_value);
+            l0.LOG.push("[2]Loaded property: " + r.key + " as " + r.property_name + " with default: "
+                + r.property_default_value);
             loaded++;
           }
         }
@@ -248,7 +258,7 @@ public final class use_HaliteDefLoader
   {
     int saved = 0;
 
-    if(end_goal_check)
+    if (end_goal_check)
     {
     }
   }
