@@ -71,7 +71,9 @@ public class use_Def< T >
    * @param potential_modifier
    *          This modifier can be used for when the desired value might need
    *          altering after all
-   *          checks have passed.
+   *          checks have passed. It is strongly advised that the programmer
+   *          implement
+   *          a modifier so that there are no type casting inconsistencies.
    * @param action
    *          The action to run when this definition is being loaded. This action
    *          is run as a none blocking action initiated by default by

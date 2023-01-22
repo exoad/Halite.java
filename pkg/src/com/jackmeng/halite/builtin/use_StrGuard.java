@@ -8,6 +8,7 @@ import com.jackmeng.halite.impl_PGuard;
  * {@link com.jackmeng.halite.builtin.use_StrGuard.strguard_Strict}.
  *
  * @author Jack Meng
+ * @see com.jackmeng.halite.builtin.use_StrGuard.strguard_Strict
  */
 public class use_StrGuard
         implements
@@ -23,15 +24,22 @@ public class use_StrGuard
         /**
          * To only match with ignoring case
          */
-        LENIENT
+        LENIENT,
+
+        /**
+         * Match using a regex, AKA String.matches()
+         */
+        MATCH_REGEX;
     }
 
     private strguard_Strict rule;
     private String target;
 
     /**
-     * @param rule Rule to use
-     * @param target The target string to try and match
+     * @param rule
+     *            Rule to use
+     * @param target
+     *            The target string to try and match
      */
     public use_StrGuard(strguard_Strict rule, String target)
     {
@@ -62,6 +70,7 @@ public class use_StrGuard
     @Override public boolean check(String supplement)
     {
         return rule == strguard_Strict.LENIENT ? supplement.equalsIgnoreCase(target)
-                : rule == strguard_Strict.MATCH_CASE ? supplement.equals(target) : false;
+                : rule == strguard_Strict.MATCH_CASE ? supplement.equals(target)
+                        : rule == strguard_Strict.MATCH_REGEX ? supplement.matches(target) : false;
     }
 }

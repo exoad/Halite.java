@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.jackmeng.halite.HaliteBuilder;
 import com.jackmeng.halite.use_HaliteFault;
 import com.jackmeng.halite.core.l0;
+import com.jackmeng.stl.stl_Wrap;
 
 /**
  * A definition based loader uses String based definitions to create keyed
@@ -194,19 +195,18 @@ public final class use_HaliteDefBuilder
    */
   public synchronized Optional< Object > get(String property_name)
   {
-    AtomicReference< Object > e = new AtomicReference<>(null);
+    stl_Wrap< Object > e = new stl_Wrap<>(null);
     if (loaded_b)
     {
       defs.forEach((a, b) -> {
         l0.LOG.push("Getting_Search[DefinitionLoader]: " + a.property_name);
         if (a.property_name.equals(property_name))
-          e.set(b);
+          e.obj = b;
       });
     }
-    Object fin = e.getAcquire();
     l0.LOG.push(
-        "Acquired: " + property_name + " with " + (e.get() == null ? "[?null]" : fin.getClass().getCanonicalName()));
-    return fin == null ? Optional.empty() : Optional.of(fin);
+        "Gets: " + property_name + " with " + (e.obj == null ? "[?null]" : e.obj.getClass().getCanonicalName()));
+    return e.obj == null ? Optional.empty() : Optional.of(e.obj);
   }
 
   /**
@@ -284,8 +284,14 @@ public final class use_HaliteDefBuilder
         "[DefinitionLoader] Unsafe operation being performed: Programmatic Property setting! This can overwrite the original desired value(s)!");
     defs.forEach((a, b) -> {
       if (a.property_name.equals(property_Name) && Boolean.TRUE.equals(a.call(value.toString())))
+      {
         defs.put(a, value);
+        return;
+      }
     });
+    if (style == halite_FaultingStyle.PANIC_ON_FAULT)
+      use_HaliteFault.launch_fault("Inproper checked_set, could not set the desired [CHECKED] property to "
+          + property_Name + ". Mismatched type!");
   }
 
   /**
@@ -310,7 +316,7 @@ public final class use_HaliteDefBuilder
    */
   public synchronized void load(String fileName, halite_PropertyStyle style, boolean create, boolean end_goal_check)
   {
-    l0.LOG.push("Loading a [DEFINITION] based property configuration file");
+    l0.LOG.push("Loading a [DEFINITION] based property configuration file: " + fileName);
     loaded = 0;
     incorrect_format = 0;
     if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
@@ -318,6 +324,7 @@ public final class use_HaliteDefBuilder
       $File_create_file0(fileName, create).ifPresentOrElse(e -> {
         l0.LOG.push("[DEFINITION] based property file exists. Proceeding with loading and processing");
         Properties p = new Properties();
+        loaded_b = true;
         try
         {
           p.load(new FileInputStream(e));

@@ -10,11 +10,9 @@ public class test_Halite
 {
   public static void main(String[] args) throws Exception
   {
-    use_HaliteDefBuilder loader = new use_HaliteDefBuilder(halite_FaultingStyle.IGNORE_ON_FAULT,
-        new use_Def[] { new use_Def< Boolean >("AMOGUS", "uwu", Boolean.TRUE, use_Guard.BOOLEAN) });
-    loader.load("/home/jackm/Code/property-manager/pkg/src/com/jackmeng/test/def_tester/tcs/1.psp");
-    System.out.println(loader.get("uwu"));
-    loader.set("uwu", "amgous");
+    use_HaliteDefBuilder loader = new use_HaliteDefBuilder(halite_FaultingStyle.PANIC_ON_FAULT,
+        new use_Def[] { new use_Def< Boolean >("AMOGUS", "uwu", Boolean.TRUE, use_Guard.BETTER_BOOL) });
+    loader.load("/home/jackm/Code/property-manager/pkg/src/com/jackmeng/test/def_tester/tcs/2.psp");
     System.out.println(loader.get("uwu"));
   }
 }
