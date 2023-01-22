@@ -3,11 +3,14 @@ package com.jackmeng.halite.def;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.jackmeng.halite.HaliteBuilder;
 import com.jackmeng.halite.use_HaliteFault;
 import com.jackmeng.halite.core.l0;
@@ -25,6 +28,7 @@ import com.jackmeng.halite.core.l0;
  *
  * @author Jack Meng
  * @see com.jackmeng.halite.HaliteBuilder
+ * @see com.jackmeng.halite.model.use_HaliteModelBuilder
  */
 public final class use_HaliteDefBuilder
     implements
@@ -94,10 +98,17 @@ public final class use_HaliteDefBuilder
     JAVA_UTIL_PROPERTIES;
   }
 
+  /**
+   * All mutable definitions are stored here along with there resultants (As the
+   * value pair).
+   *
+   * No definition is safe from unwanted manipulation via the unsafe method:
+   * {@link #set(String, Object)}
+   */
   private final Map< use_Def< ? >, Object > defs;
   private final halite_FaultingStyle style;
   private int loaded = 0, incorrect_format = 0;
-  private boolean load = false;
+  private boolean loaded_b = false;
 
   /**
    * @param style
@@ -122,6 +133,159 @@ public final class use_HaliteDefBuilder
   public use_HaliteDefBuilder(halite_FaultingStyle style, use_Def< ? >[] property_Def)
   {
     this(style, l0.itrb(property_Def));
+  }
+
+  /**
+   * This is an unsafe method. It deletes all stored resultants within
+   * {@link #defs} which can cause
+   * adverse effects when dependent callers require certain values only to get
+   * Optional.of(null)
+   *
+   * No closures are provided for the original states of each property definition
+   *
+   * @see #rmv(String)
+   */
+  public synchronized void wipe()
+  {
+    l0.LOG.push(
+        "[0][DefinitionLoader] Unsafe operation being performed: Programmatic Property setting! This call may leave certain dependencies dangling!");
+    defs.forEach((a, b) -> defs.put(a, null));
+  }
+
+  /**
+   * This is an unsafe method. It deletes a desired property definition entirely.
+   * However, it returns a closure by returning the last value as a Map.Entry<K,V>
+   * to the caller.
+   *
+   * This is especially unsafe to use when you use in a fashion similar to
+   * {@link #load(String)} then
+   * {@link #rmv(String)} then
+   * {@link #get(String)} which can cause unexpected Nullability checks, but can
+   * be handled with java.util.Optional, but it is highly to avoid patterns like
+   * this.
+   *
+   * Furthermore, it can also cause other complications like
+   * ConcurrentModificationExceptions, NullPointerExceptions
+   * if you are somehow calling {@link #load(String)} and {@link #rmv(String)} at
+   * the same time.
+   *
+   * @param property_name
+   * @return
+   */
+  public synchronized Optional< Map.Entry< use_Def< ? >, Object > > rmv(String property_name)
+  {
+    l0.LOG.push(
+        "[1][DefinitionLoader] Unsafe operation being performed: Programmatic Property setting! This call may leave certain dependencies dangling!");
+    Map.Entry< use_Def< ? >, Object > e = null;
+    for (use_Def< ? > r : defs.keySet())
+      if (r.property_name.equals(property_name))
+        e = Map.entry(r, defs.get(r));
+    return e == null ? Optional.empty() : Optional.of(e);
+  }
+
+  /**
+   * Searches for a property_name value. Note this is the "key" that appears in a
+   * property file.
+   *
+   * @param property_name
+   *          The Stringified key
+   * @return The property from the load. If not loaded or could not be found, this
+   *         method returns an empty Optional<Object>
+   */
+  public synchronized Optional< Object > get(String property_name)
+  {
+    AtomicReference< Object > e = new AtomicReference<>(null);
+    if (loaded_b)
+    {
+      defs.forEach((a, b) -> {
+        l0.LOG.push("Getting_Search[DefinitionLoader]: " + a.property_name);
+        if (a.property_name.equals(property_name))
+          e.set(b);
+      });
+    }
+    Object fin = e.getAcquire();
+    l0.LOG.push(
+        "Acquired: " + property_name + " with " + (e.get() == null ? "[?null]" : fin.getClass().getCanonicalName()));
+    return fin == null ? Optional.empty() : Optional.of(fin);
+  }
+
+  /**
+   * This is an unsafe method. It sets the value within the map programmatically.
+   * Furthermore, the programmer must realize that any value
+   * they put in to this Builder for a specified definition is always mutable and
+   * can always be erased.
+   * <br>
+   * This means if you do a {@link #set(String, Object)} and then following it
+   * with a {@link #load(String, halite_PropertyStyle, boolean, boolean)},
+   * it can result in the original {@link #set(String, Object)} having no effect.
+   * <br>
+   * This method is also unsafe in that, there are no initial calls to the
+   * definition's impl_PGuard which poses
+   * risks when others call {@link #get(String)} and get the wrong type causing
+   * Casting errors.
+   *
+   * For a semi-checked setter, see {@link #checked_set(String, Object)}
+   * <br>
+   * Side Note: There are no set(use_Def<?>,T) because it is highly unadvised to
+   * keep separate instance declarations outside of the constructor calls:
+   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, Iterable)} or
+   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, use_Def[])}.
+   *
+   * @param <T>
+   *          The type of the value to set(T)
+   * @param property_Name
+   *          The property_name. This value is the formal "key" name that appears
+   *          in the property file
+   * @param value
+   *          The desired value.
+   * @see #checked_set(String, Object)
+   */
+  public synchronized < T > void set(String property_Name, T value)
+  {
+    l0.LOG.push(
+        "[DefinitionLoader] Unsafe operation being performed: Programmatic Property setting! This can overwrite the original desired value(s)!");
+    defs.forEach((a, b) -> {
+      if (a.property_name.equals(property_Name))
+        defs.put(a, value);
+    });
+  }
+
+  /**
+   * This is an unsafe method. This is a hardcoded definition guarded version of
+   * {@link #set(String, Object)}. However, it is still not safe in that, any
+   * programmatic modification of the values
+   * are deemed unsafe due to the fact that it can be malicious or provide no
+   * closures for other dependencies. Additionally, the call to the guard's
+   * checker
+   * assumes that calling value#toString() results in the "raw" value of that
+   * property_value instead of
+   * some gibberish regarding its internals or other debug diagnostic data.
+   *
+   * This method is only to save you from having the wrong type for setting and
+   * not anything else.
+   * <br>
+   * Side Note: There are no set(use_Def<?>,T) because it is highly unadvised to
+   * keep separate instance declarations outside of the constructor calls:
+   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, Iterable)} or
+   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, use_Def[])}.
+   *
+   * @param <T>
+   *          The type of the value to set(T)
+   * @param property_Name
+   *          The property_name. This value is the formal "key" name that appears
+   *          in the property file
+   * @param value
+   *          The desired value.
+   * @see #set(String, Object)
+   */
+  public synchronized < T > void checked_set(String property_Name, T value)
+  {
+    l0.LOG.push(
+        "[DefinitionLoader] Unsafe operation being performed: Programmatic Property setting! This can overwrite the original desired value(s)!");
+    defs.forEach((a, b) -> {
+      if (a.property_name.equals(property_Name) && Boolean.TRUE.equals(a.call(value.toString())))
+        defs.put(a, value);
+    });
   }
 
   /**
@@ -154,7 +318,6 @@ public final class use_HaliteDefBuilder
       $File_create_file0(fileName, create).ifPresentOrElse(e -> {
         l0.LOG.push("[DEFINITION] based property file exists. Proceeding with loading and processing");
         Properties p = new Properties();
-        boolean loaded = true;
         try
         {
           p.load(new FileInputStream(e));
@@ -162,9 +325,9 @@ public final class use_HaliteDefBuilder
         {
           e1.printStackTrace();
           l0.LOG.push(e1.getMessage());
-          loaded = false;
+          loaded_b = false;
         }
-        if (loaded)
+        if (loaded_b)
         {
           l0.LOG.push("Property init of java::io::Properties.load() was successful");
           for (use_Def< ? > r : defs.keySet())
@@ -181,7 +344,6 @@ public final class use_HaliteDefBuilder
             else
             {
               if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
-
                 use_HaliteFault.launch_fault("Failed to validate the property. Panic Reason: " + l0.err.getString("2")
                     + "\nInstead I got: " + property + "\nDoes not match guard(s): "
                     + l0.to_string_arr_class(r.coalesce) + "\nFor property: " + r.property_name + "\nKey: " + r.key);
@@ -195,7 +357,7 @@ public final class use_HaliteDefBuilder
             }
           }
         }
-        else if (!loaded)
+        else if (!loaded_b)
         {
           if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
             use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
@@ -204,20 +366,21 @@ public final class use_HaliteDefBuilder
             for (use_Def< ? > r : defs.keySet())
             {
               defs.put(r, r.property_default_value);
-              l0.LOG.push("[1]Loaded property: " + r.key + " as " + r.property_name + " with default: "
+              l0.LOG.push("[1]Loaded property: " + r.key + " as " + r.property_name + " with [default]: "
                   + r.property_default_value);
             }
           }
         }
-        load = loaded;
       }, () -> {
-        load = false;
         if (this.style == halite_FaultingStyle.IGNORE_ON_FAULT && !create)
+        {
           for (use_Def< ? > r : defs.keySet())
           {
             defs.put(r, r.property_default_value);
             loaded++;
           }
+          loaded_b = true;
+        }
         else if (this.style == halite_FaultingStyle.PANIC_ON_FAULT && !create)
           use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
         else if (create)
@@ -231,6 +394,7 @@ public final class use_HaliteDefBuilder
             e1.printStackTrace();
             l0.LOG.push(e1.getMessage());
           }
+          loaded_b = true;
           for (use_Def< ? > r : defs.keySet())
           {
             defs.put(r, r.property_default_value);
@@ -249,19 +413,45 @@ public final class use_HaliteDefBuilder
           use_HaliteFault.launch_fault("End goal check failed. Reason: " + l0.err.getString("5"));
       });
       System.out.println("[\u2713] " + loaded + "\n[\u2573] " + incorrect_format + "\n[\u2211] "
-          + (loaded + incorrect_format) + "\nFile_Load: " + this.load + "\n=========");
+          + (loaded + incorrect_format) + "\nFile_Load: " + this.loaded_b + "\n=========");
     }
-
   }
 
-  public synchronized void save(String fileName, halite_FaultingStyle style, boolean end_goal_check)
+  /**
+   * Saves the current state of the property builder to a file on the hard drive.
+   * This operation should be used wisely as there can be extreme performance
+   * deprecation when a large builder with an uncached property map is being
+   * transfered in this map.
+   *
+   * @param style
+   *          The desired property type to load from.
+   * @param fileName
+   *          The desired file to save to.
+   * @param comments
+   *          Any comments to append to.
+   */
+  public synchronized void save(halite_PropertyStyle style, String fileName, String comments)
   {
-    l0.LOG.push("[DEFINITION_LOADER] Attempting to save the current desired property definitions to: " + fileName);
-    int saved = 0;
-
-    if (end_goal_check)
+    if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
     {
+      if (loaded_b)
+      {
+        l0.LOG.push("[DEFINITION_LOADER] Attempting to save the current desired property definitions to: " + fileName);
+        Properties t = new Properties();
+        defs.forEach(
+            (a, b) -> t.setProperty(a.property_name, b == null ? a.property_default_value.toString() : b.toString()));
+        try
+        {
+          t.store(new FileOutputStream(new File(fileName)), comments);
+        } catch (Exception e)
+        {
+          e.printStackTrace();
+          l0.LOG.push(e.getMessage());
+        }
+      }
+      else use_HaliteFault.launch_fault("Failed to save properties, due to reason: " + l0.err.getString("5"));
     }
+    else use_HaliteFault.launch_fault("Currently no support for YAML");
   }
 
   /**
@@ -269,19 +459,19 @@ public final class use_HaliteDefBuilder
    * Java Properties
    * File instead of any other supported formats.
    */
-  @Override public void load(String fileName)
+  @Override public synchronized void load(String fileName)
   {
     l0.LOG.push("Default loading with #load(String)");
     load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES, false, true);
   }
 
-  @Override public void sync(String fileName)
+  @Override public synchronized void sync(String fileName)
   {
-    // TODO Auto-generated method stub
-
+    save(halite_PropertyStyle.JAVA_UTIL_PROPERTIES, fileName,
+        this.getClass().getCanonicalName() + "[" + hashCode() + "]");
   }
 
-  @Override public String toString()
+  @Override public synchronized String toString()
   {
     return "[\u2713] " + loaded + "\n[\u2573] " + incorrect_format + "\n[\u2211] "
         + (loaded + incorrect_format) + "\n" + defs.toString();

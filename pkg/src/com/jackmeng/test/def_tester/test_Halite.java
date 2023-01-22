@@ -1,9 +1,7 @@
 package com.jackmeng.test.def_tester;
 
-import java.util.Random;
 
 import com.jackmeng.halite.builtin.use_Guard;
-import com.jackmeng.halite.core.l0;
 import com.jackmeng.halite.def.use_Def;
 import com.jackmeng.halite.def.use_HaliteDefBuilder;
 import com.jackmeng.halite.def.use_HaliteDefBuilder.halite_FaultingStyle;
@@ -15,12 +13,8 @@ public class test_Halite
     use_HaliteDefBuilder loader = new use_HaliteDefBuilder(halite_FaultingStyle.IGNORE_ON_FAULT,
         new use_Def[] { new use_Def< Boolean >("AMOGUS", "uwu", Boolean.TRUE, use_Guard.BOOLEAN) });
     loader.load("/home/jackm/Code/property-manager/pkg/src/com/jackmeng/test/def_tester/tcs/1.psp");
-
-
-    while(true)
-    {
-      l0.LOG.push("idk");
-      Thread.sleep(new Random().nextLong(400, 1500));
-    }
+    System.out.println(loader.get("uwu"));
+    loader.set("uwu", "amgous");
+    System.out.println(loader.get("uwu"));
   }
 }
