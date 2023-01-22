@@ -9,10 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.jackmeng.halite.HaliteBuilder;
+import com.jackmeng.halite.use_FaultingStyle;
 import com.jackmeng.halite.use_HaliteFault;
+import com.jackmeng.halite.use_PropertyStyle;
 import com.jackmeng.halite.core.l0;
 import com.jackmeng.stl.stl_Wrap;
 
@@ -37,69 +38,6 @@ public final class use_HaliteDefBuilder
 {
 
   /**
-   * Standard File IO function, determines specific objectives to meet when
-   * creating a file.
-   *
-   * For example if the file is present, don't create a file, if the file is not,
-   * create a file.
-   *
-   *
-   * @param path
-   *          Path to the desired file. This means including the file name and
-   *          extension.
-   * @param try_create
-   *          CreateNewFile() ?
-   * @return The file object, null if the file could not be created.
-   */
-  private static Optional< File > $File_create_file0(final String path, final boolean try_create)
-  {
-    File t = new File(path);
-    if (t.exists() && t.isFile() && t.canRead() && t.canWrite())
-      return Optional.of(t);
-    if (try_create)
-    {
-      try
-      {
-        t.createNewFile();
-      } catch (IOException e)
-      {
-        return Optional.empty();
-      }
-    }
-    return Optional.empty();
-  }
-
-  public enum halite_FaultingStyle {
-    /**
-     * A panic_on_fault style means that whenever any of the following criteria is
-     * met, the program will throw an exception:
-     * <ul>
-     * <li>Invalid property_value</li>
-     * <li>Parsing error</li>
-     * </ul>
-     */
-    PANIC_ON_FAULT,
-    /**
-     * This should be the default selected option for when any kind of fault(s) are
-     * encountered in which, where everything is handled by the guards themselves.
-     */
-    IGNORE_ON_FAULT;
-  }
-
-  /**
-   * Represents what kind of property file is being read.
-   *
-   * @author Jack Meng
-   */
-  public enum halite_PropertyStyle {
-    YAML,
-    /**
-     * Use {@link java.util.Properties}
-     */
-    JAVA_UTIL_PROPERTIES;
-  }
-
-  /**
    * All mutable definitions are stored here along with there resultants (As the
    * value pair).
    *
@@ -107,7 +45,7 @@ public final class use_HaliteDefBuilder
    * {@link #set(String, Object)}
    */
   private final Map< use_Def< ? >, Object > defs;
-  private final halite_FaultingStyle style;
+  private use_FaultingStyle style;
   private int loaded = 0, incorrect_format = 0;
   private boolean loaded_b = false;
 
@@ -117,11 +55,11 @@ public final class use_HaliteDefBuilder
    * @param property_def
    *          The Property definition that is used to define and build this loader
    */
-  public use_HaliteDefBuilder(halite_FaultingStyle style, Iterable< use_Def< ? > > property_def)
+  public use_HaliteDefBuilder(use_FaultingStyle style, Iterable< use_Def< ? > > property_def)
   {
     defs = new HashMap<>();
     property_def.forEach(r -> defs.put(r, null));
-    this.style = style == null ? halite_FaultingStyle.PANIC_ON_FAULT : style;
+    this.style = style == null ? use_FaultingStyle.PANIC_ON_FAULT : style;
     l0.LOG.push("HaliteDefLoader[" + hashCode() + "] ARMED");
   }
 
@@ -131,9 +69,33 @@ public final class use_HaliteDefBuilder
    * @param property_Def
    *          Array of property definitions used to define and build this loader
    */
-  public use_HaliteDefBuilder(halite_FaultingStyle style, use_Def< ? >[] property_Def)
+  public use_HaliteDefBuilder(use_FaultingStyle style, use_Def< ? >[] property_Def)
   {
     this(style, l0.itrb(property_Def));
+  }
+
+  /**
+   * Sets the desired faulting style
+   *
+   * @param style
+   *          Desired faulting style
+   * @see com.jackmeng.halite.use_FaultingStyle
+   */
+  public void fault_style(use_FaultingStyle style)
+  {
+    this.style = style;
+  }
+
+  /**
+   * Gets the desired faulting style
+   *
+   * @return
+   *         Desired faulting style
+   * @see com.jackmeng.halite.use_FaultingStyle
+   */
+  public use_FaultingStyle fault_style()
+  {
+    return this.style;
   }
 
   /**
@@ -216,7 +178,7 @@ public final class use_HaliteDefBuilder
    * can always be erased.
    * <br>
    * This means if you do a {@link #set(String, Object)} and then following it
-   * with a {@link #load(String, halite_PropertyStyle, boolean, boolean)},
+   * with a {@link #load(String, use_PropertyStyle, boolean, boolean)},
    * it can result in the original {@link #set(String, Object)} having no effect.
    * <br>
    * This method is also unsafe in that, there are no initial calls to the
@@ -228,8 +190,8 @@ public final class use_HaliteDefBuilder
    * <br>
    * Side Note: There are no set(use_Def<?>,T) because it is highly unadvised to
    * keep separate instance declarations outside of the constructor calls:
-   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, Iterable)} or
-   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, use_Def[])}.
+   * {@link #use_HaliteDefBuilder(use_FaultingStyle, Iterable)} or
+   * {@link #use_HaliteDefBuilder(use_FaultingStyle, use_Def[])}.
    *
    * @param <T>
    *          The type of the value to set(T)
@@ -266,8 +228,8 @@ public final class use_HaliteDefBuilder
    * <br>
    * Side Note: There are no set(use_Def<?>,T) because it is highly unadvised to
    * keep separate instance declarations outside of the constructor calls:
-   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, Iterable)} or
-   * {@link #use_HaliteDefBuilder(halite_FaultingStyle, use_Def[])}.
+   * {@link #use_HaliteDefBuilder(use_FaultingStyle, Iterable)} or
+   * {@link #use_HaliteDefBuilder(use_FaultingStyle, use_Def[])}.
    *
    * @param <T>
    *          The type of the value to set(T)
@@ -289,7 +251,7 @@ public final class use_HaliteDefBuilder
         return;
       }
     });
-    if (style == halite_FaultingStyle.PANIC_ON_FAULT)
+    if (style == use_FaultingStyle.PANIC_ON_FAULT)
       use_HaliteFault.launch_fault("Inproper checked_set, could not set the desired [CHECKED] property to "
           + property_Name + ". Mismatched type!");
   }
@@ -314,14 +276,14 @@ public final class use_HaliteDefBuilder
    *          store some general data about how much got loaded etc.. It is best
    *          to turn this parameter to TRUE
    */
-  public synchronized void load(String fileName, halite_PropertyStyle style, boolean create, boolean end_goal_check)
+  public synchronized void load(String fileName, use_PropertyStyle style, boolean create, boolean end_goal_check)
   {
     l0.LOG.push("Loading a [DEFINITION] based property configuration file: " + fileName);
     loaded = 0;
     incorrect_format = 0;
-    if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
+    if (style == use_PropertyStyle.JAVA_UTIL_PROPERTIES)
     {
-      $File_create_file0(fileName, create).ifPresentOrElse(e -> {
+      l0.$File_create_file0(fileName, create).ifPresentOrElse(e -> {
         l0.LOG.push("[DEFINITION] based property file exists. Proceeding with loading and processing");
         Properties p = new Properties();
         loaded_b = true;
@@ -350,7 +312,7 @@ public final class use_HaliteDefBuilder
             }
             else
             {
-              if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
+              if (this.style == use_FaultingStyle.PANIC_ON_FAULT)
                 use_HaliteFault.launch_fault("Failed to validate the property. Panic Reason: " + l0.err.getString("2")
                     + "\nInstead I got: " + property + "\nDoes not match guard(s): "
                     + l0.to_string_arr_class(r.coalesce) + "\nFor property: " + r.property_name + "\nKey: " + r.key);
@@ -366,7 +328,7 @@ public final class use_HaliteDefBuilder
         }
         else if (!loaded_b)
         {
-          if (this.style == halite_FaultingStyle.PANIC_ON_FAULT)
+          if (this.style == use_FaultingStyle.PANIC_ON_FAULT)
             use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
           else
           {
@@ -379,7 +341,7 @@ public final class use_HaliteDefBuilder
           }
         }
       }, () -> {
-        if (this.style == halite_FaultingStyle.IGNORE_ON_FAULT && !create)
+        if (this.style == use_FaultingStyle.IGNORE_ON_FAULT && !create)
         {
           for (use_Def< ? > r : defs.keySet())
           {
@@ -388,7 +350,7 @@ public final class use_HaliteDefBuilder
           }
           loaded_b = true;
         }
-        else if (this.style == halite_FaultingStyle.PANIC_ON_FAULT && !create)
+        else if (this.style == use_FaultingStyle.PANIC_ON_FAULT && !create)
           use_HaliteFault.launch_fault("Failed to load properties. Reason: " + l0.err.getString("1"));
         else if (create)
         {
@@ -437,9 +399,9 @@ public final class use_HaliteDefBuilder
    * @param comments
    *          Any comments to append to.
    */
-  public synchronized void save(halite_PropertyStyle style, String fileName, String comments)
+  public synchronized void save(use_PropertyStyle style, String fileName, String comments)
   {
-    if (style == halite_PropertyStyle.JAVA_UTIL_PROPERTIES)
+    if (style == use_PropertyStyle.JAVA_UTIL_PROPERTIES)
     {
       if (loaded_b)
       {
@@ -469,12 +431,12 @@ public final class use_HaliteDefBuilder
   @Override public synchronized void load(String fileName)
   {
     l0.LOG.push("Default loading with #load(String)");
-    load(fileName, halite_PropertyStyle.JAVA_UTIL_PROPERTIES, false, true);
+    load(fileName, use_PropertyStyle.JAVA_UTIL_PROPERTIES, false, true);
   }
 
   @Override public synchronized void sync(String fileName)
   {
-    save(halite_PropertyStyle.JAVA_UTIL_PROPERTIES, fileName,
+    save(use_PropertyStyle.JAVA_UTIL_PROPERTIES, fileName,
         this.getClass().getCanonicalName() + "[" + hashCode() + "]");
   }
 

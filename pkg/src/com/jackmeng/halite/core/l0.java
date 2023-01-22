@@ -1,7 +1,10 @@
 package com.jackmeng.halite.core;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import com.jackmeng.stl.stl_Logger;
@@ -17,10 +20,43 @@ public final class l0
   {
   }
 
+  /**
+   * Standard File IO function, determines specific objectives to meet when
+   * creating a file.
+   *
+   * For example if the file is present, don't create a file, if the file is not,
+   * create a file.
+   *
+   *
+   * @param path
+   *          Path to the desired file. This means including the file name and
+   *          extension.
+   * @param try_create
+   *          CreateNewFile() ?
+   * @return The file object, null if the file could not be created.
+   */
+  public static Optional< File > $File_create_file0(final String path, final boolean try_create)
+  {
+    File t = new File(path);
+    if (t.exists() && t.isFile() && t.canRead() && t.canWrite())
+      return Optional.of(t);
+    if (try_create)
+    {
+      try
+      {
+        t.createNewFile();
+      } catch (IOException e)
+      {
+        return Optional.empty();
+      }
+    }
+    return Optional.empty();
+  }
+
   public static final ResourceBundle err = ResourceBundle.getBundle("com.jackmeng.halite.core.error_codes");
 
   public static final stl_Logger LOG = new stl_Logger("com_dot_jmeng_HaliteLoader",
-      "/home/jackm/Code/property-manager/dump");
+      System.getProperty("java.io.tmpdir"));
 
   static
   {
