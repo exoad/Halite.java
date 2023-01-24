@@ -5,3 +5,5 @@ This toolkit can either use the standard `java.util.Properties` manager or a cus
 
 
 Built because of Halcyon :). Check it out [here](https://github.com/Halcyoninae/Halcyon.c)!
+
+> More will be added later :D
