@@ -8,7 +8,7 @@ package com.jackmeng.halite.def.builtin;
  *
  * @author Jack Meng
  */
-public final class use_RangeGuard
+public final class use_DRangeGuard
     implements
     impl_DGuard
 {
@@ -22,7 +22,7 @@ public final class use_RangeGuard
    * @param maximum
    *          Maximum Value (inclusive)
    */
-  public use_RangeGuard(double minimum, double maximum)
+  public use_DRangeGuard(double minimum, double maximum)
   {
     this.minimum = minimum;
     this.maximum = maximum;

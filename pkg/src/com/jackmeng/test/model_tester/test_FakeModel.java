@@ -8,5 +8,5 @@ public class test_FakeModel
         extends
         use_ReadyModel
 {
-    @is_Peekable public Object amogus = "";
+    @is_Peekable public String amogus = "sus";
 }

@@ -9,9 +9,9 @@ package com.jackmeng.halite.def.builtin;
  *
  * @author Jack Meng
  */
-public final class use_Guard
+public final class use_DGuard
 {
-  private use_Guard()
+  private use_DGuard()
   {
   }
 

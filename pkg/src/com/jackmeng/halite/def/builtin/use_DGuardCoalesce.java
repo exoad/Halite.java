@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author Jack Meng
  * @see com.jackmeng.halite.def.builtin.impl_DGuard
  */
-public class use_GuardCoalesce
+public class use_DGuardCoalesce
     extends ArrayList< impl_DGuard >
     implements impl_DGuard
 {

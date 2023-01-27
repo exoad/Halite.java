@@ -1,12 +1,10 @@
 package com.jackmeng.halite.model;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
@@ -15,7 +13,6 @@ import com.jackmeng.halite.use_FaultingStyle;
 import com.jackmeng.halite.use_HaliteFault;
 import com.jackmeng.halite.use_PropertyStyle;
 import com.jackmeng.halite.core.l0;
-import com.jackmeng.stl.stl_Callback;
 import com.jackmeng.stl.stl_Wrap;
 
 /**
@@ -91,7 +88,6 @@ public final class use_HaliteModelBuilder
         short[].class,
         long.class,
         long[].class,
-        List.class
     };
   }
 
@@ -243,6 +239,8 @@ public final class use_HaliteModelBuilder
 
       }
     }
+    if (m.obj != null)
+      cached_Model = new WeakReference<>(m.obj);
     return m.obj();
   }
 
