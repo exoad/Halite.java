@@ -190,46 +190,59 @@ public final class use_HaliteModelBuilder
    */
   public impl_Model load(String fileName, use_PropertyStyle propertyStyle)
   {
-    stl_Wrap< impl_Model > m = new stl_Wrap<>((impl_Model)model.clone());
-    if (propertyStyle == use_PropertyStyle.JAVA_UTIL_PROPERTIES)
+    stl_Wrap< impl_Model > m = new stl_Wrap<>(null);
+    try
     {
-      l0.$File_create_file0(fileName, true).ifPresentOrElse(x -> {
+      m.obj((impl_Model) model.clone());
+    } catch (CloneNotSupportedException e)
+    {
+      // IGNORE
+    }
+    if (m != null)
+    {
+      if (propertyStyle == use_PropertyStyle.JAVA_UTIL_PROPERTIES)
+      {
+        l0.$File_create_file0(fileName, true).ifPresentOrElse(x -> {
 
-        l0.LOG.push("[MODEL] based property file exists. Proceeding with loading and processing");
-        Properties p = new Properties();
-        loaded_b = true;
-        try
-        {
-          p.load(new FileInputStream(x));
-        } catch (IOException err)
-        {
-          err.printStackTrace();
-          l0.LOG.push(err.getMessage());
-          loaded_b = false;
-        }
-        if (loaded_b)
-        {
-          m.obj(new impl_Model() {
-
-          });
-          l0.LOG.push("Property init of java::io::Properties.load() was successful");
-          for (Field e : peekable_fields(model))
+          l0.LOG.push("[MODEL] based property file exists. Proceeding with loading and processing");
+          Properties p = new Properties();
+          loaded_b = true;
+          try
           {
-            Object str = p.get(e.getName());
-            if (str == null)
+            p.load(new FileInputStream(x));
+          } catch (IOException err)
+          {
+            err.printStackTrace();
+            l0.LOG.push(err.getMessage());
+            loaded_b = false;
+          }
+          if (loaded_b)
+          {
+            l0.LOG.push("Property init of java::io::Properties.load() was successful");
+            for (Field e : peekable_fields(model))
             {
-              m.obj().getClass().cre
-            }
-            else
-            {
-
+              Object str = p.get(e.getName());
+              if (str != null)
+              {
+                Field t = null;
+                try
+                {
+                  t = m.obj().getClass().getDeclaredField(e.getName());
+                  t.setAccessible(true);
+                  t.set(m.obj, str);
+                } catch (NoSuchFieldException | SecurityException | IllegalArgumentException
+                    | IllegalAccessException e1)
+                {
+                  e1.printStackTrace();
+                }
+              }
             }
           }
-        }
-      }, null);
+        }, null);
 
+      }
     }
-    return m.obj;
+    return m.obj();
   }
 
   public void save(String fileName, impl_Model model, use_PropertyStyle propertyStyle)
