@@ -75,6 +75,14 @@ public final class l0
     };
   }
 
+  public static < T > boolean has(T[] arr, T toFind)
+  {
+    for (T e : arr)
+      if (e.equals(toFind))
+        return true;
+    return false;
+  }
+
   public static < T > String to_string_arr_class(T[] e)
   {
     StringBuilder sb = new StringBuilder("\n{\n");

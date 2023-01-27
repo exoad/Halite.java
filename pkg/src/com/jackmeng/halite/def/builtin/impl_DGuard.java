@@ -1,4 +1,4 @@
-package com.jackmeng.halite.def;
+package com.jackmeng.halite.def.builtin;
 
 /**
  * An interface used to define a guard used for certain validation operations.

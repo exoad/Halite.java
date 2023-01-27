@@ -1,7 +1,5 @@
 package com.jackmeng.halite.def.builtin;
 
-import com.jackmeng.halite.def.impl_DGuard;
-
 /**
  * This class provides some very generic and simple PropertyGuards that
  * can be used without having to implement your own.

@@ -3,8 +3,6 @@ package com.jackmeng.halite.def.builtin;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.jackmeng.halite.def.impl_DGuard;
-
 /**
  * This guard class provides a grouping of Guards to run at
  * once to validate.
@@ -15,7 +13,7 @@ import com.jackmeng.halite.def.impl_DGuard;
  * requiring softwares.
  *
  * @author Jack Meng
- * @see com.jackmeng.halite.def.impl_DGuard
+ * @see com.jackmeng.halite.def.builtin.impl_DGuard
  */
 public class use_GuardCoalesce
     extends ArrayList< impl_DGuard >

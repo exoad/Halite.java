@@ -1,7 +1,5 @@
 package com.jackmeng.halite.def.builtin;
 
-import com.jackmeng.halite.def.impl_DGuard;
-
 /**
  * A simple "match" the string guard. It provides
  * certain types of strictness seen in

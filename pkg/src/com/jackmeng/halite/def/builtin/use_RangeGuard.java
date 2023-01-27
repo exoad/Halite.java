@@ -1,7 +1,5 @@
 package com.jackmeng.halite.def.builtin;
 
-import com.jackmeng.halite.def.impl_DGuard;
-
 /**
  * Presents a range guard which bounds/range of [minimum, maximum] with
  * square brackets representing inclusive of both bounds.

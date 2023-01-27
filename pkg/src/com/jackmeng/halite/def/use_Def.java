@@ -3,6 +3,7 @@ package com.jackmeng.halite.def;
 import java.util.Optional;
 
 import com.jackmeng.halite.impl_Modifier;
+import com.jackmeng.halite.def.builtin.impl_DGuard;
 import com.jackmeng.stl.stl_Callback;
 
 /**

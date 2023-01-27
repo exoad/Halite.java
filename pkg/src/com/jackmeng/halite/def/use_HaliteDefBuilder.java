@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -57,7 +58,7 @@ public final class use_HaliteDefBuilder
    */
   public use_HaliteDefBuilder(use_FaultingStyle style, Iterable< use_Def< ? > > property_def)
   {
-    defs = new HashMap<>();
+    defs = new Hashtable<>();
     property_def.forEach(r -> defs.put(r, null));
     this.style = style == null ? use_FaultingStyle.PANIC_ON_FAULT : style;
     l0.LOG.push("HaliteDefLoader[" + hashCode() + "] ARMED");
