@@ -238,7 +238,8 @@ public final class use_HaliteModelBuilder
               }
             }
           }
-        }, null);
+        }, () -> {
+        });
 
       }
     }
