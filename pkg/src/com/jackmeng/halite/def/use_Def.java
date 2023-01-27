@@ -3,7 +3,6 @@ package com.jackmeng.halite.def;
 import java.util.Optional;
 
 import com.jackmeng.halite.impl_Modifier;
-import com.jackmeng.halite.impl_PGuard;
 import com.jackmeng.stl.stl_Callback;
 
 /**
@@ -45,7 +44,7 @@ public class use_Def< T >
   public Optional< String > opt_Descriptor;
   private def_State myState = def_State.NOT_LOADED;
   private Optional< Runnable > actionpotential;
-  public final impl_PGuard[] coalesce;
+  public final impl_DGuard[] coalesce;
   private final Optional< impl_Modifier< String > > modifier;
 
   /**
@@ -62,7 +61,7 @@ public class use_Def< T >
    * @param e
    *          The guard coalescing group to use
    */
-  public use_Def(String key, String property_name, T property_default_value, impl_PGuard... e)
+  public use_Def(String key, String property_name, T property_default_value, impl_DGuard... e)
   {
     this(null, null, null, key, property_name, property_default_value, e);
   }
@@ -96,7 +95,7 @@ public class use_Def< T >
   public use_Def(impl_Modifier< String > potential_modifier, Runnable action, String descriptor,
       String key, String property_name,
       T property_default_value,
-      impl_PGuard... e)
+      impl_DGuard... e)
   {
     this.key = key;
     this.modifier = potential_modifier == null ? Optional.empty() : Optional.of(potential_modifier);
@@ -132,7 +131,7 @@ public class use_Def< T >
   @Override public Boolean call(String arg0)
   {
     boolean r = true;
-    for (impl_PGuard e : coalesce)
+    for (impl_DGuard e : coalesce)
       r = e.check(arg0);
     myState = r ? def_State.VALID : def_State.INVALID;
     return r;

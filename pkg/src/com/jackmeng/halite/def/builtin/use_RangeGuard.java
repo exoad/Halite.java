@@ -1,6 +1,6 @@
-package com.jackmeng.halite.builtin;
+package com.jackmeng.halite.def.builtin;
 
-import com.jackmeng.halite.impl_PGuard;
+import com.jackmeng.halite.def.impl_DGuard;
 
 /**
  * Presents a range guard which bounds/range of [minimum, maximum] with
@@ -12,7 +12,7 @@ import com.jackmeng.halite.impl_PGuard;
  */
 public final class use_RangeGuard
     implements
-    impl_PGuard
+    impl_DGuard
 {
   private double minimum, maximum;
 

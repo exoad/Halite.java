@@ -1,18 +1,18 @@
-package com.jackmeng.halite.builtin;
+package com.jackmeng.halite.def.builtin;
 
-import com.jackmeng.halite.impl_PGuard;
+import com.jackmeng.halite.def.impl_DGuard;
 
 /**
  * A simple "match" the string guard. It provides
  * certain types of strictness seen in
- * {@link com.jackmeng.halite.builtin.use_StrGuard.strguard_Strict}.
+ * {@link com.jackmeng.halite.def.builtin.use_StrGuard.strguard_Strict}.
  *
  * @author Jack Meng
- * @see com.jackmeng.halite.builtin.use_StrGuard.strguard_Strict
+ * @see com.jackmeng.halite.def.builtin.use_StrGuard.strguard_Strict
  */
 public class use_StrGuard
         implements
-        impl_PGuard
+        impl_DGuard
 {
 
     public enum strguard_Strict {

@@ -56,7 +56,7 @@ public final class l0
   public static final ResourceBundle err = ResourceBundle.getBundle("com.jackmeng.halite.core.error_codes");
 
   public static final stl_Logger LOG = new stl_Logger("com_dot_jmeng_HaliteLoader",
-      System.getProperty("java.io.tmpdir"));
+      "/home/jackm/Code/property-manager/dump");
 
   static
   {

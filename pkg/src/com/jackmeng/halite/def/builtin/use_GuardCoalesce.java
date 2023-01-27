@@ -1,9 +1,9 @@
-package com.jackmeng.halite.builtin;
+package com.jackmeng.halite.def.builtin;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.jackmeng.halite.impl_PGuard;
+import com.jackmeng.halite.def.impl_DGuard;
 
 /**
  * This guard class provides a grouping of Guards to run at
@@ -15,11 +15,11 @@ import com.jackmeng.halite.impl_PGuard;
  * requiring softwares.
  *
  * @author Jack Meng
- * @see com.jackmeng.halite.impl_PGuard
+ * @see com.jackmeng.halite.def.impl_DGuard
  */
 public class use_GuardCoalesce
-    extends ArrayList< impl_PGuard >
-    implements impl_PGuard
+    extends ArrayList< impl_DGuard >
+    implements impl_DGuard
 {
   @Override public boolean check(String supplement)
   {

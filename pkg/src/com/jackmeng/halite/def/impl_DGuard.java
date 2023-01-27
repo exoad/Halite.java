@@ -1,4 +1,4 @@
-package com.jackmeng.halite;
+package com.jackmeng.halite.def;
 
 /**
  * An interface used to define a guard used for certain validation operations.
@@ -22,11 +22,11 @@ package com.jackmeng.halite;
  * possible.
  *
  * There are pre-implemented guards which you can find in
- * {@link com.jackmeng.halite.builtin}
+ * {@link com.jackmeng.halite.def.builtin}
  *
  * @author Jack Meng
  */
-@FunctionalInterface public interface impl_PGuard
+@FunctionalInterface public interface impl_DGuard
 {
 
   /**
